@@ -1,8 +1,6 @@
-git checkout pi
 git add .
 git commit -m "to pi"
 git push
-git checkout main
 ssh raspberrypi "
     cd lol_champ_similarity_v2
     git pull
