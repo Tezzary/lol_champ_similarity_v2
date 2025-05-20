@@ -14,7 +14,7 @@ def make_request(url, params=None):
         print(f"Error: {response.status_code} - {response.text}")
         return None
 
-# Example usage
+# Example usage getting account information of set user in .env file
 if __name__ == "__main__":
     url = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/" + os.getenv("RIOT_SAMPLE_USER") + "/" + os.getenv("RIOT_SAMPLE_TAG")
     data = make_request(url, None)
