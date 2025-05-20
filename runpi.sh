@@ -1,3 +1,4 @@
+#used to offload the program to my rasberry pi, as population of the database takes a long time but is not computationally intensive
 git add .
 git commit -m "to pi"
 git push
