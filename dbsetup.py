@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS player(
     level INT,
     rank TEXT,
     tier TEXT,
+    foundTimestamp INT,
+    lastExploredTimestamp INT,
     PRIMARY KEY(puuid)
 )
 """)
@@ -20,6 +22,7 @@ CREATE TABLE IF NOT EXISTS champion(
     PRIMARY KEY(championName)
 )
 """)
+
 queries.append(
 """
 CREATE TABLE IF NOT EXISTS player_champion_mastery(
@@ -31,9 +34,34 @@ CREATE TABLE IF NOT EXISTS player_champion_mastery(
     FOREIGN KEY(championName) REFERENCES champion(championName)
 )
 """)
+
+queries.append(
+"""
+CREATE TABLE IF NOT EXISTS match(
+    id TEXT,
+    startTime INT,
+    endTime INT,
+    gameMode TEXT,
+    discovererPuuid TEXT,
+    PRIMARY KEY(id),
+    FOREIGN KEY(discovererPuuid) REFERENCES player(puuid)
+)
+""")
+
+queries.append(
+"""
+CREATE TABLE IF NOT EXISTS match_player(
+    puuid TEXT,
+    matchId TEXT,
+    PRIMARY KEY(puuid, matchId),
+    FOREIGN KEY(puuid) REFERENCES player(puuid),
+    FOREIGN KEY(matchId) REFERENCES match(id)
+)
+""")
+
 for query in queries:
     res = db.execute_query(query)
-    if res is not None:
-        print(res)
+    if res["success"]:
+        print("Query executed successfully")
     else:
-        print("No results returned.")
+        print(f"Error executing query: {res['error']}")

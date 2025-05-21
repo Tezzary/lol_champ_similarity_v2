@@ -8,6 +8,9 @@ def execute_query(query):
         res = cur.execute(query)
         con.commit()
         if (res is not None):
-            return res.fetchall()
+            return {"success": True, "data": res.fetchall()}
+        return {"success": True, "data": None}
+        
     except sqlite3.Error as e:
         print(f"An error occurred: {e}")
+        return {"success": False, "data": str(e)}
