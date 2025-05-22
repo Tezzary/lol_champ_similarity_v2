@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MATCHES_PER_PLAYER = 5
-PLAYERS_TO_EXPLORE = 5
+PLAYERS_TO_EXPLORE = 10000
 
 def add_user_if_not_exists(puuid):
     result = db.execute_query(f"""
@@ -17,8 +17,7 @@ def add_user_if_not_exists(puuid):
         result = result["data"]
         print(f"User {result[0][0]}#{result[0][1]} already exists in the database, skipping...")
         return
-    else:
-        print("User does not exist in the database. Adding user...")
+    
     
     url = "https://americas.api.riotgames.com/riot/account/v1/accounts/by-puuid/" + puuid
     data = request.make_request(url, None)
@@ -40,6 +39,24 @@ def add_user_if_not_exists(puuid):
     INSERT INTO player (puuid, gameName, tagLine, level, rank, tier, foundTimestamp, lastExploredTimestamp)
     VALUES ('{puuid}', '{gameName}', '{tagLine}', {level}, '{rank}', '{tier}', unixepoch(), NULL)
     """)
+
+    print(f"Adding user {gameName}#{tagLine} to the database... Current player count: {get_player_count() + 1}")
+
+    #Add champion mastery to the database for player
+    url = "https://oc1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/" + puuid
+    data = request.make_request(url, None)
+    if data is None:
+        print(f"Champion mastery data for {puuid} is None.")
+        return
+    for champion in data:
+        championId = champion["championId"]
+        masteryPoints = champion["championPoints"]
+        masteryLevel = champion["championLevel"]
+        db.execute_query(f"""
+        INSERT INTO player_champion_mastery (puuid, championId, masteryPoints, masteryLevel)
+        VALUES ('{puuid}', {championId}, {masteryPoints}, {masteryLevel})
+        """)
+    
 
 def explore_matches(puuid):
     url = f"https://sea.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?type=ranked&start=0&count={MATCHES_PER_PLAYER}"
@@ -63,18 +80,29 @@ def explore_matches(puuid):
         if not result["success"]:
             print(f"Match {matchId} already exists in the database, skipping...")
             continue
-        for player in matchData["info"]["participants"]:
-            puuid = player["puuid"]
-            add_user_if_not_exists(puuid)
-            db.execute_query(f"""
+        query = """
             INSERT INTO match_player (puuid, matchId)
-            VALUES ('{puuid}', '{matchId}')
-            """)
+            VALUES
+        """
+        for player in matchData["info"]["participants"]:
+            player_puuid = player["puuid"]
+            if player_puuid == puuid:
+                continue
+            
+            add_user_if_not_exists(player_puuid)
+            query += f"('{player_puuid}', '{matchId}'),"
+        query = query[:-1]
+        db.execute_query(query)
     print(f"Explored {MATCHES_PER_PLAYER} matches for {puuid}.")
 
+def get_player_count():
+    result = db.execute_query("""
+    SELECT COUNT(*) FROM player
+    """)
+    return result["data"][0][0]
 
 def populate_db():
-    for _ in range(PLAYERS_TO_EXPLORE):
+    while get_player_count() < PLAYERS_TO_EXPLORE:
         result = db.execute_query("""
         SELECT player.puuid FROM player
         WHERE player.lastExploredTimestamp IS NULL

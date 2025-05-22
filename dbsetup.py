@@ -1,7 +1,8 @@
 import db
-
+import requests
 queries = []
 
+DATA_DRAGON_VERSION = "15.10.1"
 
 queries.append("""
 CREATE TABLE IF NOT EXISTS player(
@@ -18,8 +19,9 @@ CREATE TABLE IF NOT EXISTS player(
 """)
 queries.append("""
 CREATE TABLE IF NOT EXISTS champion(
+    id INT,
     championName TEXT,
-    PRIMARY KEY(championName)
+    PRIMARY KEY(id)
 )
 """)
 
@@ -27,11 +29,12 @@ queries.append(
 """
 CREATE TABLE IF NOT EXISTS player_champion_mastery(
     puuid TEXT,
-    championName TEXT,
+    championId INT,
     masteryPoints INT,
-    PRIMARY KEY(puuid, championName),
+    masteryLevel INT,
+    PRIMARY KEY(puuid, championId),
     FOREIGN KEY(puuid) REFERENCES player(puuid),
-    FOREIGN KEY(championName) REFERENCES champion(championName)
+    FOREIGN KEY(championId) REFERENCES champion(id)
 )
 """)
 
@@ -58,6 +61,26 @@ CREATE TABLE IF NOT EXISTS match_player(
     FOREIGN KEY(matchId) REFERENCES match(id)
 )
 """)
+
+
+#Adding champions to the database from the Riot Data Dragon API
+url = f"https://ddragon.leagueoflegends.com/cdn/{DATA_DRAGON_VERSION}/data/en_US/champion.json"
+result = requests.get(url)
+if result.status_code != 200:
+    print(f"Error fetching champion data: {result.status_code}")
+    exit(1)
+champion_data = result.json()
+champion_data = champion_data["data"]
+
+query = """
+    INSERT INTO champion(id, championName)
+    VALUES
+
+"""
+for key in champion_data:
+    query += f"({champion_data[key]['key']}, '{champion_data[key]['id']}'),\n"
+query = query[:-2]
+queries.append(query)
 
 for query in queries:
     res = db.execute_query(query)
