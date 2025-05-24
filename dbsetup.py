@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS player(
     tier TEXT,
     foundTimestamp INT,
     lastExploredTimestamp INT,
+    totalMasteryPoints INT,
     PRIMARY KEY(puuid)
 )
 """)
@@ -21,6 +22,7 @@ queries.append("""
 CREATE TABLE IF NOT EXISTS champion(
     id INT,
     championName TEXT,
+    i INT,
     PRIMARY KEY(id)
 )
 """)
@@ -77,8 +79,10 @@ query = """
     VALUES
 
 """
+i = 0
 for key in champion_data:
-    query += f"({champion_data[key]['key']}, '{champion_data[key]['id']}'),\n"
+    query += f"({champion_data[key]['key']}, '{champion_data[key]['id']}', {i}),\n"
+    i += 1
 query = query[:-2]
 queries.append(query)
 

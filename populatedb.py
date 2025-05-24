@@ -35,12 +35,7 @@ def add_user_if_not_exists(puuid):
     data = request.make_request(url, None)
     level = data["summonerLevel"]
     #place current timestamp in foundTimestamp and lastExploredTimestamp
-    db.execute_query(f"""
-    INSERT INTO player (puuid, gameName, tagLine, level, rank, tier, foundTimestamp, lastExploredTimestamp)
-    VALUES ('{puuid}', '{gameName}', '{tagLine}', {level}, '{rank}', '{tier}', unixepoch(), NULL)
-    """)
-
-    print(f"Adding user {gameName}#{tagLine} to the database... Current player count: {get_player_count() + 1}")
+    
 
     #Add champion mastery to the database for player
     url = "https://oc1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/" + puuid
@@ -48,6 +43,15 @@ def add_user_if_not_exists(puuid):
     if data is None:
         print(f"Champion mastery data for {puuid} is None.")
         return
+    total_mastery_points = sum(champion["championPoints"] for champion in data)
+
+    db.execute_query(f"""
+    INSERT INTO player (puuid, gameName, tagLine, level, rank, tier, foundTimestamp, lastExploredTimestamp, totalMasteryPoints)
+    VALUES ('{puuid}', '{gameName}', '{tagLine}', {level}, '{rank}', '{tier}', unixepoch(), NULL, {total_mastery_points})
+    """)
+
+    print(f"Adding user {gameName}#{tagLine} to the database... Current player count: {get_player_count() + 1}")
+
     for champion in data:
         championId = champion["championId"]
         masteryPoints = champion["championPoints"]
