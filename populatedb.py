@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MATCHES_PER_PLAYER = 5
-PLAYERS_TO_EXPLORE = 10000
+PLAYERS_TO_EXPLORE = 10_000_000
 
 def add_user_if_not_exists(puuid):
     result = db.execute_query(f"""
@@ -135,4 +135,4 @@ if __name__ == "__main__":
     add_user_if_not_exists(data["puuid"])
     populate_db()
     #print(db.execute_query("SELECT puuid, gameName, tagLine, level, rank, tier, strftime('%d/%m/%Y', datetime(foundTimestamp, 'unixepoch')), strftime('%d/%m/%Y', datetime(lastExploredTimestamp, 'unixepoch')) FROM player"))
-    print(db.execute_query("SELECT gameName, tagLine FROM player"))
+    #print(db.execute_query("SELECT gameName, tagLine FROM player"))
