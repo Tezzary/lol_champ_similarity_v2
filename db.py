@@ -84,6 +84,21 @@ def get_mastery(player, champion_id):
     if result["success"] and result["data"]:
         return result["data"][0][0]  # masteryPoints
     return 0  # Default to 0 if no mastery found
+
+def get_champions():
+    query = "SELECT i, id, championName FROM champion ORDER BY i ASC"
+    result = execute_query(query)
+    if result["success"]:
+        champions = []
+        for row in result["data"]:
+            champion_object = {
+                "i": row[0],
+                "id": row[1],
+                "championName": row[2]
+            }
+            champions.append(champion_object)
+        return champions
+    return []
 if __name__ == "__main__":
     print(get_num_players())
     print(get_player(1))
