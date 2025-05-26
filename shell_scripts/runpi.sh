@@ -7,7 +7,7 @@ ssh raspberrypi "
     cd lol_champ_similarity_v2
     git pull
     killall python3
-    nohup python3 -u main.py > output.log 2>&1 & disown
+    nohup python3 -u populatedb.py > output.log 2>&1 & disown
     echo 'Running on Raspberry Pi...'
     tail -f output.log
 
