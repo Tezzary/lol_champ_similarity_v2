@@ -9,6 +9,5 @@ ssh raspberrypi "
     killall python3
     nohup python3 -u main.py > output.log 2>&1 & disown
     echo 'Running on Raspberry Pi...'
-    tail -f output.log
 
 "
