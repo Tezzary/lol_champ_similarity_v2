@@ -2,7 +2,7 @@
 git add .
 git commit -m "to pi"
 git push
-
+scp .env raspberrypi:~/lol_champ_similarity_v2/
 ssh raspberrypi "
     cd lol_champ_similarity_v2
     git pull
