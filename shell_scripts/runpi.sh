@@ -2,9 +2,13 @@
 git add .
 git commit -m "to pi"
 git push
+
 ssh raspberrypi "
     cd lol_champ_similarity_v2
     git pull
-    python3 request.py
+    killall python3
+    nohup python3 -u main.py > output.log 2>&1 & disown
+    echo 'Running on Raspberry Pi...'
+    tail -f output.log
+
 "
-scp raspberrypi/lolchamp_similarity_v2/database.db database.db

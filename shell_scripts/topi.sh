@@ -1,0 +1,1 @@
+scp  database.db raspberrypi:~/lol_champ_similarity_v2/
