@@ -10,7 +10,7 @@ from PIL import Image
 
 embedding.load_embeddings()
 
-tsne = TSNE(n_components=2, perplexity=30, learning_rate=200, random_state=42)
+tsne = TSNE(metric='cosine', n_components=2, perplexity=30, learning_rate=200, random_state=42)
 embeddings_2d = tsne.fit_transform(embedding.embeddings)
 
 #download images from datadragon
@@ -70,7 +70,7 @@ def plot_tsne(embeddings_2d, title="t-SNE Visualization"):
     ax.set_xlim(embeddings_2d[:, 0].min() - 1, embeddings_2d[:, 0].max() + 1)
     ax.set_ylim(embeddings_2d[:, 1].min() - 1, embeddings_2d[:, 1].max() + 1)
     plt.title(title)
-    plt.savefig("image_euclid.png")
+    plt.savefig("image.png")
 
 download_champion_images()
 plot_tsne(embeddings_2d)
