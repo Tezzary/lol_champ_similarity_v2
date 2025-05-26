@@ -14,28 +14,13 @@ def get_embedding(champ_id):
 def get_similarity(champ_id1, champ_id2):
     emb1 = get_embedding(champ_id1)
     emb2 = get_embedding(champ_id2)
-    #np.sqrt(emb1.dot(emb1) works as a normalization factor and is apparently faster than np.linalg.norm so try later
-    return np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2) + 1e-8)  # Adding a small epsilon to avoid division by zero
+    return np.dot(emb1, emb2)
 
-def get_similarity_derivative(champ_id1, champ_id2):
-    #champ_id1 is the champion whose embedding we want to change
-    #champ_id2 is the champion whose embedding we want to use for the derivative
+def get_similarity_cosine(champ_id1, champ_id2):
     emb1 = get_embedding(champ_id1)
     emb2 = get_embedding(champ_id2)
-    
-    norm1 = np.linalg.norm(emb1)
-    norm2 = np.linalg.norm(emb2)
-    
-    dimensions = len(emb1)
-    overall_derivate = np.zeros(dimensions, dtype=np.float32)
-
-    for i in range(dimensions):
-        #derivative of cosime similarity with respect to emb1[i] and emb2[i]
-        # Using the formula for the derivative of cosine similarity:
-        #https://math.stackexchange.com/questions/1923613/partial-derivative-of-cosine-similarity
-        derivative = emb2[i] / (norm1 * norm2 + 1e-8) - get_similarity(champ_id1, champ_id2) * (emb1[i] / (norm1**2 + 1e-8))
-        overall_derivate[i] = derivative
-    return overall_derivate
+    #np.sqrt(emb1.dot(emb1) works as a normalization factor and is apparently faster than np.linalg.norm so try later
+    return np.dot(emb1, emb2) / (np.linalg.norm(emb1) * np.linalg.norm(emb2) + 1e-8)  # Adding a small epsilon to avoid division by zero
 
 def mse_loss(label, prediction):
     return (label - prediction) ** 2
@@ -101,8 +86,8 @@ def train_embeddings():
                     
                     if loss_derivative != 0:
                         #print(alpha * loss_derivative * embeddings[champions[champ_id2]['i']])
-                        embeddings[champions[champ_id1]['i']] -= alpha * loss_derivative * get_similarity_derivative(champions[champ_id1]['i'], champions[champ_id2]['i'])
-                        embeddings[champions[champ_id2]['i']] -= alpha * loss_derivative * get_similarity_derivative(champions[champ_id2]['i'], champions[champ_id1]['i'])
+                        embeddings[champions[champ_id1]['i']] -= alpha * loss_derivative * embeddings[champions[champ_id2]['i']]
+                        embeddings[champions[champ_id2]['i']] -= alpha * loss_derivative * embeddings[champions[champ_id1]['i']]
             
         print(f"Epoch {epoch + 1}/{epochs} completed.")
     dump_readable_embeddings(1)
@@ -113,7 +98,7 @@ def get_most_similar(champion_name, top_n=5):
     for i in range(num_champs):
         if i == champion_id:
             continue
-        similarity = get_similarity(champion_id, i)
+        similarity = get_similarity_cosine(champion_id, i)
         similarities.append((i, similarity))
     
     similarities.sort(key=lambda x: x[1], reverse=True)
