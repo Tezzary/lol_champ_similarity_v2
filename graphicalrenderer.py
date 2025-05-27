@@ -10,9 +10,6 @@ from PIL import Image
 
 embedding.load_embeddings()
 
-tsne = TSNE(metric='cosine', n_components=2, perplexity=30, learning_rate=200, random_state=42)
-embeddings_2d = tsne.fit_transform(embedding.embeddings)
-
 #download images from datadragon
 def download_champion_images():
     DATA_DRAGON_VERSION = "15.10.1"
@@ -41,7 +38,7 @@ def download_champion_images():
         else:
             print(f"Failed to download image for {champion['id']}")
 
-def plot_tsne(embeddings_2d, title="t-SNE Visualization"):
+def plot_tsne(embeddings_2d, filename):
     plt.figure(figsize=(10, 8))
     
     ''' 
@@ -69,9 +66,18 @@ def plot_tsne(embeddings_2d, title="t-SNE Visualization"):
             print(f"Error loading {champion['id']}.png: {e}")
     ax.set_xlim(embeddings_2d[:, 0].min() - 1, embeddings_2d[:, 0].max() + 1)
     ax.set_ylim(embeddings_2d[:, 1].min() - 1, embeddings_2d[:, 1].max() + 1)
-    plt.title(title)
-    plt.savefig("image.png")
+    #save to images/image.png
+    plt.axis('off')  # Hide axes
+    plt.savefig(filename, bbox_inches='tight', pad_inches=0.1, dpi=300)
 
 download_champion_images()
-plot_tsne(embeddings_2d)
+
+tsne = TSNE(metric='cosine', n_components=2, perplexity=30, learning_rate=200, random_state=42)
+embeddings_2d = tsne.fit_transform(embedding.embeddings)
+plot_tsne(embeddings_2d, 'images/image_cosine.png')
+
+tsne = TSNE(metric='euclidean', n_components=2, perplexity=30, learning_rate=200, random_state=42)
+embeddings_2d = tsne.fit_transform(embedding.embeddings)
+plot_tsne(embeddings_2d, 'images/image_euclidean.png')
+
 print("Image saved")
