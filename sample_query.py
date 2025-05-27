@@ -29,6 +29,7 @@ result = db.execute_query(f"""
     ADD i INT;
 """)
 '''
+'''
 result = db.execute_query(f"""
 SELECT * FROM champion ORDER BY championName;
 """)
@@ -45,4 +46,8 @@ for champ in champions:
         print(f"Failed to update with index {i}.")
         continue
 
+'''
+result = db.execute_query(f"""
+    select COUNT(*) from player_champion_mastery;
+""")
 print(result["data"])
