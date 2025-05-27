@@ -49,7 +49,7 @@ def dump_readable_embeddings(i):
 
 def train_embeddings():
     global embeddings
-    dump_readable_embeddings(0)
+    #dump_readable_embeddings(0)
     for epoch in range(epochs):
         players = db.get_players(players_per_epoch)
         for player in players:
@@ -90,7 +90,7 @@ def train_embeddings():
                         embeddings[champions[champ_id2]['i']] -= alpha * loss_derivative * embeddings[champions[champ_id1]['i']]
             
         print(f"Epoch {epoch + 1}/{epochs} completed.")
-    dump_readable_embeddings(1)
+    #dump_readable_embeddings(1)
 
 def get_most_similar(champion_name, top_n=5):
     champion_id = db.execute_query(f"SELECT i FROM champion WHERE championName = '{champion_name}'")["data"][0][0]
