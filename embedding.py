@@ -31,14 +31,14 @@ def mse_loss_derivative(label, prediction):
 def geom_mean(mastery1, mastery2, sum_mastery):
     return np.sqrt(mastery1 * mastery2) / sum_mastery
 
-epochs = 100
+epochs = 400
 players_per_epoch = 1000
 champions_per_player = 15
 #epochs = 1
 #players_per_epoch = 1
 #champions_per_player = 2
 
-alpha = 0.02
+alpha = 0.01
 
 def dump_readable_embeddings(i):
     global embeddings
