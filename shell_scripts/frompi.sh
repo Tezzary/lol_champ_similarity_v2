@@ -1,1 +1,1 @@
-scp raspberrypi:~/lol_champ_similarity_v2/database.db ../lol_champ_similarity_v2/frompi.db
+scp raspberrypi:~/lol_champ_similarity_v2/database.db ./frompi.db
